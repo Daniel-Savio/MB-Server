@@ -9,7 +9,17 @@ router.get('/', async () => {
   }
 })
 
+//Auth routes
+router.delete('auth/', [AuthController, 'logoutUser'])
+router.post('auth/', [AuthController, 'loginUser'])
+router.get('check/', [AuthController, 'authenticateUser'])
+
+//Users routes
 router.get('users/', [UsersController, 'getUsers'])
 router.post('users/', [UsersController, 'create'])
-router.post('auth/', [AuthController, 'loginUser'])
-router.delete('auth/', [AuthController, 'logoutUser'])
+
+//Patient routes
+
+//Records routes
+
+//Tags routes
