@@ -10,8 +10,8 @@ export default class Patient extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
-  @belongsTo(() => User)
-  declare createdBy: BelongsTo<typeof User>
+  @column()
+  declare userId: number
 
   @column()
   declare photoUrl: string | null
@@ -42,4 +42,7 @@ export default class Patient extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
 }

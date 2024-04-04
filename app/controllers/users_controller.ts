@@ -8,11 +8,13 @@ export default class UsersController {
    */
 
   async create({ response, request, auth, bouncer }: HttpContext) {
+    // Authentication method
     await auth.authenticate()
 
     if (await bouncer.allows(createUser)) {
       return response.forbidden('You are not an administrator')
     }
+
     const newUser = await request.only(['fullName', 'email', 'password', 'isAdmin'])
     try {
       const user = await User.create(newUser)

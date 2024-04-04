@@ -8,11 +8,19 @@ export default class Record extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
-  @belongsTo(() => User)
-  declare createdBy: BelongsTo<typeof User>
+  @column()
+  declare userId: number
 
+  @column()
+  declare patientId: number
+
+  // this part does not appear in the database is just a facilitator for the Adonis Framework Functions
+  @belongsTo(() => User)
+  declare user: BelongsTo<typeof User>
+
+  // this part does not appear in the database is just a facilitator for the Adonis Framework Functions
   @belongsTo(() => Patient)
-  declare patientId: BelongsTo<typeof Patient>
+  declare patient: BelongsTo<typeof Patient>
 
   @column()
   declare content: string | null

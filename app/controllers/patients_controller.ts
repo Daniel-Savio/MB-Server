@@ -1,19 +1,23 @@
+import { deletePatient } from '#abilities/main'
 import Adress from '#models/adress'
 import Patient from '#models/patient'
-import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PatientsController {
   /**
    * Display a list of resource
    */
-  async index({}: HttpContext) {}
+  async index({ response, auth }: HttpContext) {
+    await auth.authenticate()
+    const allPatients = await Patient.all()
+    response.send(allPatients)
+  }
 
   /**
    * Handle form submission for the create action
    */
   async store({ response, request, auth }: HttpContext) {
-    const user: User = await auth.authenticate()
+    const user = await auth.authenticate()
     console.log(user)
 
     try {
@@ -21,32 +25,31 @@ export default class PatientsController {
       const patient = await request.only(['photoUrl', 'fullName', 'cpf', 'birthDate', 'sus'])
 
       const newPatient = await Patient.create(patient)
-      console.log(newPatient.id)
-      const createdPatient = await Patient.findOrFail(newPatient.id)
-      console.log(createdPatient)
+      await newPatient.related('user').associate(user) // Associate the column "user_id" to the current logged user
 
-      await createdPatient.related('createdBy').associate(user) // Associate the column "created_by" to the current logged user
-
-      if (patientAddress.cep !== null) {
-        console.log('Creating the address')
-        patientAddress.patientId = newPatient.id
+      if (patientAddress.cep) {
         const newAddress = await Adress.create(patientAddress)
-        console.log(newAddress)
-        response.status(200).send([newPatient, newAddress])
+        await newAddress.related('patient').associate(newPatient) // Associate the column "patient_id" to the new patient created
       }
 
-      response.status(200).send(newPatient)
+      response.status(200).send([newPatient, patientAddress])
     } catch (err) {
       if (err.code === 'ER_DUP_ENTRY') {
         response.status(500).send('Valor duplicado')
+      } else {
+        response.status(500).send(err.message)
       }
     }
   }
 
   /**
-   * Show individual record
+   * Show individual patient based on the ID
    */
-  async show({ params }: HttpContext) {}
+  async show({ response, params, auth }: HttpContext) {
+    await auth.authenticate
+    const chosenPatient = await Patient.findOrFail(params.id)
+    response.send(chosenPatient)
+  }
 
   /**
    * Handle form submission for the edit action
@@ -54,7 +57,16 @@ export default class PatientsController {
   // async update({ params, request }: HttpContext) {}
 
   /**
-   * Delete record
+   * Receavies a array of patients IDs and delete eachone
    */
-  async destroy({ params }: HttpContext) {}
+  async destroy({ response, params, auth, bouncer }: HttpContext) {
+    auth.authenticate()
+    if (await bouncer.allows(deletePatient)) {
+      return response.forbidden('You are not an administrator')
+    }
+    params.IDs.forEach(async (id: number) => {
+      const deletedPatient = await Patient.find(id)
+      await deletedPatient!.delete()
+    })
+  }
 }
