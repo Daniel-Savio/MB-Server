@@ -1,6 +1,6 @@
-import { deletePatient } from '#abilities/main'
 import Adress from '#models/adress'
 import Patient from '#models/patient'
+import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PatientsController {
@@ -52,18 +52,24 @@ export default class PatientsController {
   }
 
   /**
-   * Handle form submission for the edit action
+   * Receavies a single ID and deletes it if it exists
    */
-  // async update({ params, request }: HttpContext) {}
+  async delete({ response, params, auth }: HttpContext) {
+    const admin: User = await auth.authenticate()
+    if (!admin.isAdmin) response.status(403).send(`${admin.fullName} is not a admin`)
+
+    const deletedPatient = await Patient.findOrFail(params.id)
+    await deletedPatient.delete()
+    response.status(201).send('Patient deleted successfully')
+  }
 
   /**
    * Receavies a array of patients IDs and delete eachone
    */
-  async destroy({ response, params, auth, bouncer }: HttpContext) {
-    auth.authenticate()
-    if (await bouncer.allows(deletePatient)) {
-      return response.forbidden('You are not an administrator')
-    }
+  async deleteMany({ response, params, auth }: HttpContext) {
+    const admin: User = await auth.authenticate()
+    if (!admin.isAdmin) response.status(403).send(`${admin.fullName} is not a admin`)
+
     params.IDs.forEach(async (id: number) => {
       const deletedPatient = await Patient.find(id)
       await deletedPatient!.delete()

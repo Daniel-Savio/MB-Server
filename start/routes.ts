@@ -20,7 +20,10 @@ router.get('users/', [UsersController, 'getUsers'])
 router.post('users/', [UsersController, 'create'])
 
 //Patient routes
-router.post('patients/', [PatientsController, 'store'])
+router.get('patients/', [PatientsController, 'index'])
+router.post('patients/add', [PatientsController, 'store'])
+router.delete('patients/delete', [PatientsController, 'delete'])
+router.delete('patients/deleteMany', [PatientsController, 'deleteMany'])
 //Records routes
 
 //Tags routes

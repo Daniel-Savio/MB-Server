@@ -19,7 +19,7 @@ export default class RecordsController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  async update({}: HttpContext) {}
 
   /**
    * Delete record
