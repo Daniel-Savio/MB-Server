@@ -6,12 +6,12 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('created_by').unsigned().references('users.id')
+      table.integer('user_id').unsigned().references('users.id')
       table.string('photo_url').nullable()
       table.string('full_name')
       table.string('cpf').unique().nullable()
       table.string('birth_date')
-      table.string('sus')
+      table.string('sus', 15)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

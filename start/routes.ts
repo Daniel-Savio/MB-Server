@@ -2,6 +2,7 @@
 import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
 import AuthController from '#controllers/auth_controller'
+import PatientsController from '#controllers/patients_controller'
 
 router.get('/', async () => {
   return {
@@ -16,9 +17,15 @@ router.get('check/', [AuthController, 'authenticateUser'])
 
 //Users routes
 router.get('users/', [UsersController, 'getUsers'])
-router.post('users/', [UsersController, 'create'])
+router.post('users/add', [UsersController, 'create'])
+router.delete('users/delete', [UsersController, 'delete'])
+router.delete('users/deleteMany', [UsersController, 'deleteMany'])
 
 //Patient routes
+router.get('patients/', [PatientsController, 'index'])
+router.post('patients/add', [PatientsController, 'store'])
+router.delete('patients/delete', [PatientsController, 'delete'])
+router.delete('patients/deleteMany', [PatientsController, 'deleteMany'])
 
 //Records routes
 

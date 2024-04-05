@@ -7,8 +7,11 @@ export default class Adress extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
+  @column()
+  declare patientId: number
+
   @belongsTo(() => Patient)
-  declare adressFor: BelongsTo<typeof Patient>
+  declare patient: BelongsTo<typeof Patient>
 
   @column()
   declare cep: string
