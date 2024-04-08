@@ -18,7 +18,6 @@ export default class PatientsController {
    */
   async store({ response, request, auth }: HttpContext) {
     const user = await auth.authenticate()
-    console.log(user)
 
     try {
       const patientAddress = await request.only(['address']).address

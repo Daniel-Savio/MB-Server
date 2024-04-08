@@ -3,6 +3,7 @@ import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
 import AuthController from '#controllers/auth_controller'
 import PatientsController from '#controllers/patients_controller'
+import RecordsController from '#controllers/records_controller'
 
 router.get('/', async () => {
   return {
@@ -28,5 +29,6 @@ router.delete('patients/delete', [PatientsController, 'delete'])
 router.delete('patients/deleteMany', [PatientsController, 'deleteMany'])
 
 //Records routes
-
+router.get('records/', [RecordsController, 'index'])
+router.post('records/add', [RecordsController, 'store'])
 //Tags routes
