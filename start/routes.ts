@@ -24,6 +24,7 @@ router.delete('users/deleteMany', [UsersController, 'deleteMany'])
 
 //Patient routes
 router.get('patients/', [PatientsController, 'index'])
+router.get('patients/:id', [PatientsController, 'show'])
 router.post('patients/add', [PatientsController, 'store'])
 router.delete('patients/delete', [PatientsController, 'delete'])
 router.delete('patients/deleteMany', [PatientsController, 'deleteMany'])
@@ -31,4 +32,5 @@ router.delete('patients/deleteMany', [PatientsController, 'deleteMany'])
 //Records routes
 router.get('records/', [RecordsController, 'index'])
 router.post('records/add', [RecordsController, 'store'])
+
 //Tags routes

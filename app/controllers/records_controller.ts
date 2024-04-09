@@ -41,7 +41,9 @@ export default class RecordsController {
   /**
    * Show individual record
    */
-  async show({ params }: HttpContext) {}
+  async show({ response, params, auth }: HttpContext) {
+    auth.authenticate()
+  }
 
   /**
    * Handle form submission for the edit action
