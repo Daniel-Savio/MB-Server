@@ -5,7 +5,7 @@ export default class UsersController {
   /**
    *Controller for creating a user
    */
-  async create({ response, request, auth, bouncer }: HttpContext) {
+  async create({ response, request, auth }: HttpContext) {
     // Authentication method
     const admin: User = await auth.authenticate()
 
@@ -25,12 +25,21 @@ export default class UsersController {
   }
 
   /**
-   *Controller for listing users but with authentication
+   *Controller for listing all users but with authentication
    */
-  async getUsers({ response, auth }: HttpContext) {
-    const user: User = await auth.authenticate()
+  async index({ response, auth }: HttpContext) {
+    await auth.authenticate()
 
-    response.send({ user: user.fullName, userList: User.all() })
+    const allUsers = await User.all()
+    response.send(allUsers)
+  }
+
+  async show({ response, auth, params }: HttpContext) {
+    auth.authenticate
+    const searchedUser = await User.findOrFail(params.id)
+    const allInformation = await searchedUser.preload('patient')
+
+    response.send(searchedUser)
   }
 
   /**
@@ -48,15 +57,17 @@ export default class UsersController {
   /**
    *Recives a array of Users IDs to be deletes
    */
-  async deleteMany({ params, response, auth }: HttpContext) {
+  async deleteMany({ request, response, auth }: HttpContext) {
     const admin: User = await auth.authenticate()
     if (!admin.isAdmin) return response.status(501).send(`${admin.fullName} is not a admin`)
 
-    params.IDs.forEach(async (id: number) => {
-      const deletedUser = await User.findOrFail(id)
-      await deletedUser.delete()
-    })
+    const idArray: { delete: number[] } = await request.only(['delete'])
 
-    response.status(201).send('Users deleted')
+    idArray.delete.forEach(async (id: number) => {
+      const deletedUser = await User.findOrFail(id)
+      const patients = deletedUser.serialize()
+      console.log(patients)
+      //await deletedUser.delete()
+    })
   }
 }

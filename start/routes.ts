@@ -17,7 +17,8 @@ router.post('auth/', [AuthController, 'loginUser'])
 router.get('check/', [AuthController, 'authenticateUser'])
 
 //Users routes
-router.get('users/', [UsersController, 'getUsers'])
+router.get('users/', [UsersController, 'index'])
+router.get('users/:id', [UsersController, 'show'])
 router.post('users/add', [UsersController, 'create'])
 router.delete('users/delete', [UsersController, 'delete'])
 router.delete('users/deleteMany', [UsersController, 'deleteMany'])
