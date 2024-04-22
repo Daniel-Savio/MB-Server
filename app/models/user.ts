@@ -41,6 +41,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare isAdmin: boolean
 
   @column()
+  declare $isDeleted: boolean
+
+  @column()
   declare createdBy: number
 
   @column.dateTime({ autoCreate: true })
