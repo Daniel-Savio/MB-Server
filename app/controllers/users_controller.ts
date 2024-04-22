@@ -30,14 +30,16 @@ export default class UsersController {
   async index({ response, auth }: HttpContext) {
     await auth.authenticate()
 
-    const allUsers = await User.all()
+    const allUsers = await User.query().preload('patient')
+
     response.send(allUsers)
   }
 
   async show({ response, auth, params }: HttpContext) {
     auth.authenticate
     const searchedUser = await User.findOrFail(params.id)
-    const allInformation = await searchedUser.preload('patient')
+    await searchedUser.load('patient')
+    await searchedUser.load('record')
 
     response.send(searchedUser)
   }
@@ -62,12 +64,48 @@ export default class UsersController {
     if (!admin.isAdmin) return response.status(501).send(`${admin.fullName} is not a admin`)
 
     const idArray: { delete: number[] } = await request.only(['delete'])
+    let usersToBeDeleted: User[] = []
 
-    idArray.delete.forEach(async (id: number) => {
-      const deletedUser = await User.findOrFail(id)
-      const patients = deletedUser.serialize()
-      console.log(patients)
-      //await deletedUser.delete()
+    // ? Loop through out the whole users array to dissociate everything
+
+    try {
+      await idArray.delete.forEach(async (id: number) => {
+        const deletedUser = await User.findOrFail(id)
+
+        // ? Here we need to first dissociate everything from the deleted user so it can be deleted ? //
+        await deletedUser!.load('patient')
+        await deletedUser!.load('record')
+        await deletedUser!.serialize()
+
+        // ? Oce we loaded every dependecy information we need to dissociate each of them ? //
+        const patients = deletedUser.patient
+        const records = deletedUser.record
+
+        if (patients.length) {
+          patients.forEach(async (patient) => {
+            await patient.related('user').dissociate()
+          })
+        }
+
+        if (records.length) {
+          records.forEach(async (record) => {
+            await record.related('user').dissociate()
+          })
+        }
+
+        usersToBeDeleted.push(deletedUser)
+      })
+    } catch (err) {
+      response.send({ usersNotFound: err })
+    }
+
+    if (!usersToBeDeleted) {
+      response.status(400).send({ message: 'No users to be deleted' })
+    }
+
+    usersToBeDeleted.forEach(async (user) => {
+      user.delete()
+      response.status(200).send('deleted')
     })
   }
 }
